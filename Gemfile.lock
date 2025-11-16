@@ -1,0 +1,72 @@
+GEM
+  remote: https://gem.coop/
+  specs:
+    data_uri (0.1.0)
+    date (3.5.0)
+    erb (6.0.0)
+    ffi (1.17.2)
+    ffi (1.17.2-aarch64-linux-gnu)
+    ffi (1.17.2-aarch64-linux-musl)
+    ffi (1.17.2-arm-linux-gnu)
+    ffi (1.17.2-arm-linux-musl)
+    ffi (1.17.2-arm64-darwin)
+    ffi (1.17.2-x86-linux-gnu)
+    ffi (1.17.2-x86-linux-musl)
+    ffi (1.17.2-x86_64-darwin)
+    ffi (1.17.2-x86_64-linux-gnu)
+    ffi (1.17.2-x86_64-linux-musl)
+    ffi-rzmq (2.0.7)
+      ffi-rzmq-core (>= 1.0.7)
+    ffi-rzmq-core (1.0.7)
+      ffi
+    io-console (0.8.1)
+    irb (1.15.3)
+      pp (>= 0.6.0)
+      rdoc (>= 4.0.0)
+      reline (>= 0.4.2)
+    iruby (0.8.2)
+      data_uri (~> 0.1)
+      ffi-rzmq
+      irb
+      logger
+      mime-types (>= 3.3.1)
+      multi_json (~> 1.11)
+    logger (1.7.0)
+    mime-types (3.7.0)
+      logger
+      mime-types-data (~> 3.2025, >= 3.2025.0507)
+    mime-types-data (3.2025.0924)
+    multi_json (1.17.0)
+    pp (0.6.3)
+      prettyprint
+    prettyprint (0.2.0)
+    psych (5.2.6)
+      date
+      stringio
+    rdoc (6.15.1)
+      erb
+      psych (>= 4.0.0)
+      tsort
+    reline (0.6.3)
+      io-console (~> 0.5)
+    stringio (3.1.8)
+    tsort (0.2.0)
+
+PLATFORMS
+  aarch64-linux-gnu
+  aarch64-linux-musl
+  arm-linux-gnu
+  arm-linux-musl
+  arm64-darwin
+  ruby
+  x86-linux-gnu
+  x86-linux-musl
+  x86_64-darwin
+  x86_64-linux-gnu
+  x86_64-linux-musl
+
+DEPENDENCIES
+  iruby
+
+BUNDLED WITH
+   2.7.0
