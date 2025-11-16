@@ -1,1 +1,3 @@
-brew "jupyterlab"
+# frozen_string_literal: true
+
+brew 'jupyterlab'
