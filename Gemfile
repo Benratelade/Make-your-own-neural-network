@@ -2,5 +2,6 @@
 
 source 'https://gem.coop'
 
-gem 'iruby'
+gem 'matrix'
+gem 'rspec'
 gem 'rubocop'
