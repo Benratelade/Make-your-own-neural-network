@@ -12,7 +12,9 @@ class NeuralNetwork
     [0.0673178, -0.01818, 0.46627],
     [0.390290, -0.2669001, 0.180840]]
 
-  attr_reader :output_nodes_count, :weight_input_hidden, :weight_hidden_output
+  attr_reader :output_nodes_count,
+              :weight_input_hidden,
+              :weight_hidden_output
 
   def initialize(
     input_nodes_count:,
@@ -24,8 +26,7 @@ class NeuralNetwork
     @hidden_nodes_count = hidden_nodes_count
     @output_nodes_count = output_nodes_count
     @learning_rate = learning_rate
-    @weight_input_hidden = WEIGHT_INPUT_HIDDEN
-    @weight_hidden_output = WEIGHT_HIDDEN_OUTPUT
+    generate_starting_weights_for_network
   end
 
   def train(inputs:, targets:)
@@ -77,5 +78,10 @@ class NeuralNetwork
         1.0 / (1.0 + Math.exp(-input))
       end
     )
+  end
+
+  def generate_starting_weights_for_network
+    @weight_input_hidden = Matrix.build(@hidden_nodes_count, @input_nodes_count) { rand - 0.5 }
+    @weight_hidden_output = Matrix.build(@output_nodes_count, @hidden_nodes_count) { rand - 0.5 }
   end
 end
