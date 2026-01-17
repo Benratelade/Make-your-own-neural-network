@@ -2,6 +2,7 @@ GEM
   remote: https://gem.coop/
   specs:
     ast (2.4.3)
+    csv (3.3.5)
     diff-lcs (1.6.2)
     json (2.16.0)
     language_server-protocol (3.17.0.5)
@@ -60,6 +61,7 @@ PLATFORMS
   x86_64-linux-musl
 
 DEPENDENCIES
+  csv
   matrix
   rspec
   rubocop
