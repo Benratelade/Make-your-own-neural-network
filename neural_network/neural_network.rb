@@ -1,17 +1,8 @@
 # frozen_string_literal: true
 
 require 'matrix'
+require 'json'
 class NeuralNetwork
-  WEIGHT_INPUT_HIDDEN = Matrix[
-    [0.143827, -0.13728512, 0.24625022],
-    [0.41129188, 0.24551424, -0.43500754],
-    [0.3188901, 0.06173198, 0.18406137]
-  ]
-  WEIGHT_HIDDEN_OUTPUT = Matrix[
-    [0.028071, 0.2437462, -0.158728],
-    [0.0673178, -0.01818, 0.46627],
-    [0.390290, -0.2669001, 0.180840]]
-
   attr_reader :output_nodes_count,
               :weight_input_hidden,
               :weight_hidden_output
@@ -30,17 +21,14 @@ class NeuralNetwork
   end
 
   def train(inputs:, targets:)
-    # convert inputs list to 2d array
-    inputs = Matrix[inputs]
-    targets = Matrix[targets]
-
     # calculate signals into hidden layer
-    hidden_inputs = inputs * WEIGHT_INPUT_HIDDEN
+    hidden_inputs = @weight_input_hidden * inputs
 
     # calculate the signals emerging from hidden layer
     hidden_outputs = activation_function(hidden_inputs)
+
     # calculate signals into final output layer
-    final_inputs = hidden_outputs * WEIGHT_HIDDEN_OUTPUT
+    final_inputs = @weight_hidden_output * hidden_outputs
 
     # calculate the signals emerging from final output layer
     final_outputs = activation_function(final_inputs)
@@ -49,25 +37,34 @@ class NeuralNetwork
     output_errors = targets - final_outputs
 
     # hidden layer error is the output_errors, split by weights,  recombined at hidden nodes
-    hidden_errors = @weight_hidden_output * output_errors
+    hidden_errors = @weight_hidden_output.transpose * output_errors
 
     # update the weights for the links between the hidden and  output layers
     @weight_hidden_output += @learning_rate *
-                             ((output_errors * final_outputs * (1.0 - final_outputs)) * hidden_outputs)
+                             (output_errors.combine(final_outputs.map do |el|
+                               el * (1.0 - el)
+                             end) { |error, output| error * output } * hidden_outputs.transpose)
 
     # update the weights for the links between the input and  hidden layers
     @weight_input_hidden += @learning_rate *
-                            (hidden_errors * hidden_outputs * (1.0 - hidden_outputs) * inputs)
+                            (hidden_errors.combine(hidden_outputs.map { |el| el * (1.0 - el) }) do |error, output|
+                              error * output
+                            end * inputs.transpose)
   end
 
   def query(input_list:)
-    # convert input_list to a matrix
-    inputs = Matrix.column_vector(input_list)
-    hidden_inputs = WEIGHT_INPUT_HIDDEN * inputs
+    # Assume the input list is already a matrix
+    hidden_inputs = @weight_input_hidden * input_list
     hidden_outputs = activation_function(hidden_inputs)
-    final_inputs = WEIGHT_HIDDEN_OUTPUT * hidden_outputs
+    final_inputs = @weight_hidden_output * hidden_outputs
 
     activation_function(final_inputs)
+  end
+
+  def load_pretrained_weights(file)
+    data = JSON.parse(File.read(file))
+    @weight_input_hidden = Matrix[*data['weight_input_hidden']]
+    @weight_hidden_output = Matrix[*data['weight_hidden_output']]
   end
 
   private
