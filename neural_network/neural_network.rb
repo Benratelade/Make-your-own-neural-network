@@ -17,6 +17,7 @@ class NeuralNetwork
     @hidden_nodes_count = hidden_nodes_count
     @output_nodes_count = output_nodes_count
     @learning_rate = learning_rate
+    @activation_function_cache = {}
     generate_starting_weights_for_network
   end
 
@@ -67,15 +68,17 @@ class NeuralNetwork
     @weight_hidden_output = Matrix[*data['weight_hidden_output']]
   end
 
-  private
-
   def activation_function(input_matrix)
     Matrix.column_vector(
       input_matrix.column(0).map do |input|
-        1.0 / (1.0 + Math.exp(-input))
+        result = @activation_function_cache[input] || 1.0 / (1.0 + Math.exp(-input))
+        @activation_function_cache[input] ||= result
       end
     )
   end
+  
+  private
+
 
   def generate_starting_weights_for_network
     @weight_input_hidden = Matrix.build(@hidden_nodes_count, @input_nodes_count) { rand - 0.5 }

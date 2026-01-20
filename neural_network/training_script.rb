@@ -10,8 +10,8 @@ network = NeuralNetwork.new(
   learning_rate: 0.1
 )
 
-training_data = InputProcessor.new("#{__dir__}/../MNIST_CSV/mnist_train.csv").processed_data
-# training_data = InputProcessor.new("#{__dir__}/spec/fixtures/mnist_100_items.csv").processed_data
+# training_data = InputProcessor.new("#{__dir__}/../MNIST_CSV/mnist_train.csv").processed_data
+training_data = InputProcessor.new("#{__dir__}/spec/fixtures/mnist_100_items.csv").processed_data
 
 pretraining_file_name = "#{__dir__}/trained_weights.json"
 if File.exist?(pretraining_file_name)
