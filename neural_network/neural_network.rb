@@ -74,18 +74,12 @@ class NeuralNetwork
   end
 
   def activation_function(input_matrix)
-    threads = []
-    results = []
-    input_matrix.column(0).each_with_index do |input, index|
-      threads << Thread.new do
+    Matrix.column_vector(
+      input_matrix.column(0).map do |input|
         result = @activation_function_cache[input] || 1.0 / (1.0 + Math.exp(-input))
-        results[index] = result
         @activation_function_cache[input] ||= result
       end
-    end
-    threads.each(&:join)
-
-    Matrix.column_vector(results)
+    )
   end
 
   def calculate_weights_after_applying_error(previous_layer_outputs:, input_weights:, outputs:, errors:)
