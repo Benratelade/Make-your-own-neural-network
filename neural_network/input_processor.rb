@@ -19,7 +19,7 @@ class InputProcessor
   end
 
   def convert_and_rescale_data(data)
-    matrix = Matrix[data.map(&:to_i)]
-    ((matrix / 255) * 0.99).transpose
+    matrix = Matrix[data.map(&:to_f)]
+    ((matrix / 255) * 0.99).map { |value| value + 0.01 }.transpose
   end
 end
