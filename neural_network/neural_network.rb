@@ -18,6 +18,7 @@ class NeuralNetwork
     @output_nodes_count = output_nodes_count
     @learning_rate = learning_rate
     @activation_function_cache = {}
+    @one_vector_cache = {}
     generate_starting_weights_for_network
   end
 
@@ -73,16 +74,26 @@ class NeuralNetwork
   end
 
   def activation_function(input_matrix)
-    Matrix.column_vector(
-      input_matrix.column(0).map do |input|
+    threads = []
+    results = []
+    input_matrix.column(0).each_with_index do |input, index|
+      threads << Thread.new do
         result = @activation_function_cache[input] || 1.0 / (1.0 + Math.exp(-input))
+        results[index] = result
         @activation_function_cache[input] ||= result
       end
-    )
+    end
+    threads.each(&:join)
+
+    Matrix.column_vector(results)
   end
 
   def calculate_weights_after_applying_error(previous_layer_outputs:, input_weights:, outputs:, errors:)
-    error_applied_to_outputs = errors.entrywise_product(outputs.entrywise_product(outputs.map { |output| 1 - output }))
+    one_vector = @one_vector_cache[errors.row_size] || Vector.elements(Array.new(errors.row_size, 1))
+    @one_vector_cache[errors.row_size] ||= one_vector
+    error_applied_to_outputs = errors.entrywise_product(
+      outputs.entrywise_product(Matrix.column_vector(one_vector - outputs.column_vectors.first))
+    )
     input_weights + (@learning_rate * (error_applied_to_outputs * previous_layer_outputs.transpose))
   end
 

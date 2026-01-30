@@ -2,6 +2,7 @@
 
 require_relative '../neural_network'
 require 'matrix'
+require 'benchmark'
 
 describe NeuralNetwork do
   describe '#activation_function' do
@@ -131,5 +132,60 @@ describe NeuralNetwork do
         new_weights[1]
       ).to be_within(0.000001).of(3.00330876)
     end
+
+    it 'runs as fast as it can' do
+      # previous time for 60_000 reps: 16.1s
+      input_weights = Matrix[Array.new(768, rand)]
+      previous_layer_outputs = Matrix[Array.new(768, rand)].transpose
+      outputs = Matrix[[0.909]]
+      errors = Matrix[[0.8]]
+      learning_rate = 0.1
+
+      network = NeuralNetwork.new(
+        input_nodes_count: 3,
+        hidden_nodes_count: 3,
+        output_nodes_count: 1,
+        learning_rate: learning_rate
+      )
+      elapsed_time = Benchmark.measure do
+        60_000.times do
+          network.calculate_weights_after_applying_error(
+            previous_layer_outputs: previous_layer_outputs,
+            input_weights: input_weights,
+            outputs: outputs,
+            errors: errors
+          )
+        end
+      end
+
+      expect(elapsed_time.real).to be_within(2).of(16)
+    end
   end
+
+  # describe 'Matrix methods' do
+  #   require 'benchmark'
+
+  #   it 'takes a certain amount of time to do calculations by mapping on a matrix' do
+  #     matrix = Matrix.build(1000, 1) { 5 }
+  #     elapsed_time = Benchmark.measure do
+  #       60_000.times do
+  #         matrix.map { |item| 1 - item }
+  #       end
+  #     end
+
+  #     puts "Mapping through elements: #{elapsed_time}"
+  #   end
+
+  #   it 'takes another amount of time to do calculations by instantiating a new Vector' do
+  #     matrix = Matrix.build(1000, 1) { 5 }
+  #     elapsed_time = Benchmark.measure do
+  #       vector = Vector.elements(Array.new(1000, 1))
+  #       60_000.times do
+  #         vector - matrix.column_vectors.first
+  #       end
+  #     end
+
+  #     puts "Using the extra matrix method: #{elapsed_time}"
+  #   end
+  # end
 end

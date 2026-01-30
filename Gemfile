@@ -2,6 +2,7 @@
 
 source 'https://gem.coop'
 
+gem 'benchmark'
 gem 'csv'
 gem 'matrix'
 gem 'rspec'
