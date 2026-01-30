@@ -37,20 +37,24 @@ class NeuralNetwork
     # output layer error is the (target - actual)
     output_errors = targets - final_outputs
 
-    # hidden layer error is the output_errors, split by weights,  recombined at hidden nodes
+    # hidden layer error is the output_errors, split by weights, recombined at hidden nodes
     hidden_errors = @weight_hidden_output.transpose * output_errors
 
-    # update the weights for the links between the hidden and  output layers
-    @weight_hidden_output += @learning_rate *
-                             (output_errors.combine(final_outputs.map do |el|
-                               el * (1.0 - el)
-                             end) { |error, output| error * output } * hidden_outputs.transpose)
+    # update the weights for the links between the hidden and output layers
+    @weight_hidden_output = calculate_weights_after_applying_error(
+      previous_layer_outputs: hidden_outputs,
+      input_weights: @weight_hidden_output,
+      outputs: final_outputs,
+      errors: output_errors
+    )
 
-    # update the weights for the links between the input and  hidden layers
-    @weight_input_hidden += @learning_rate *
-                            (hidden_errors.combine(hidden_outputs.map { |el| el * (1.0 - el) }) do |error, output|
-                              error * output
-                            end * inputs.transpose)
+    # update the weights for the links between the input and hidden layers
+    @weight_input_hidden = calculate_weights_after_applying_error(
+      previous_layer_outputs: inputs,
+      input_weights: @weight_input_hidden,
+      outputs: hidden_outputs,
+      errors: hidden_errors
+    )
   end
 
   def query(input_list:)
@@ -76,12 +80,16 @@ class NeuralNetwork
       end
     )
   end
-  
+
+  def calculate_weights_after_applying_error(previous_layer_outputs:, input_weights:, outputs:, errors:)
+    error_applied_to_outputs = errors.entrywise_product(outputs.entrywise_product(outputs.map { |output| 1 - output }))
+    input_weights + (@learning_rate * (error_applied_to_outputs * previous_layer_outputs.transpose))
+  end
+
   private
 
-
   def generate_starting_weights_for_network
-    @weight_input_hidden = Matrix.build(@hidden_nodes_count, @input_nodes_count) { rand - 0.5 }
-    @weight_hidden_output = Matrix.build(@output_nodes_count, @hidden_nodes_count) { rand - 0.5 }
+    @weight_input_hidden = Matrix.build(@hidden_nodes_count, @input_nodes_count) { Random.rand - 0.5 }
+    @weight_hidden_output = Matrix.build(@output_nodes_count, @hidden_nodes_count) { Random.rand - 0.5 }
   end
 end

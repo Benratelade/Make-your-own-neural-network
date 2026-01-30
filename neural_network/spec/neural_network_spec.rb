@@ -22,6 +22,7 @@ describe NeuralNetwork do
 
   describe '#query' do
     it 'calculates the output of an input' do
+      allow(Random).to receive(:rand).and_return(3)
       neural_network = NeuralNetwork.new(
         input_nodes_count: 3,
         hidden_nodes_count: 3,
@@ -29,8 +30,8 @@ describe NeuralNetwork do
         learning_rate: 0.2
       )
 
-      expect(neural_network.query(input_list: [1, 2, 3])).to eq(
-        Matrix[[0.4999917331524737], [0.5930703309561164], [0.5690019973981506]]
+      expect(neural_network.query(input_list: Matrix[[1], [2], [3]])).to eq(
+        Matrix[[0.9994472200955544], [0.9994472200955544], [0.9994472200955544]]
       )
     end
   end
@@ -55,7 +56,7 @@ describe NeuralNetwork do
     it 'changes the weights to try and reach the targets' do
       network = NeuralNetwork.new(
         input_nodes_count: 3,
-        hidden_nodes_count: 3,
+        hidden_nodes_count: 2,
         output_nodes_count: 1,
         learning_rate: 0.2
       )
@@ -97,6 +98,38 @@ describe NeuralNetwork do
           [5], [9]
         ]
       )
+    end
+  end
+
+  describe '#calculate_weights_after_applying_error' do
+    it 'calculates the new weights for a layer, based on the error' do
+      input_weights = Matrix[[2.0, 3.0]]
+      previous_layer_outputs = Matrix[[0.4], [0.5]]
+      outputs = Matrix[[0.909]]
+      errors = Matrix[[0.8]]
+      learning_rate = 0.1
+
+      network = NeuralNetwork.new(
+        input_nodes_count: 3,
+        hidden_nodes_count: 3,
+        output_nodes_count: 1,
+        learning_rate: learning_rate
+      )
+
+      new_weights = network.calculate_weights_after_applying_error(
+        previous_layer_outputs: previous_layer_outputs,
+        input_weights: input_weights,
+        outputs: outputs,
+        errors: errors
+      ).row_vectors.first
+
+      expect(
+        new_weights[0]
+      ).to be_within(0.000001).of(2.002647008)
+
+      expect(
+        new_weights[1]
+      ).to be_within(0.000001).of(3.00330876)
     end
   end
 end

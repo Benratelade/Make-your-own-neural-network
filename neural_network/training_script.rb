@@ -2,6 +2,7 @@ require_relative './neural_network'
 require_relative './input_processor'
 require 'json'
 
+puts 'START generating the neural network'
 network = NeuralNetwork.new(
   # we are working with 28 x 28 pixel images
   input_nodes_count: 784,
@@ -9,9 +10,12 @@ network = NeuralNetwork.new(
   output_nodes_count: 10,
   learning_rate: 0.1
 )
+puts 'END generating the neural network'
 
-# training_data = InputProcessor.new("#{__dir__}/../MNIST_CSV/mnist_train.csv").processed_data
-training_data = InputProcessor.new("#{__dir__}/spec/fixtures/mnist_100_items.csv").processed_data
+puts 'START processing data'
+training_data = InputProcessor.new("#{__dir__}/../MNIST_CSV/mnist_train.csv").processed_data
+# training_data = InputProcessor.new("#{__dir__}/spec/fixtures/mnist_100_items.csv").processed_data
+puts 'END processing data'
 
 pretraining_file_name = "#{__dir__}/trained_weights.json"
 if File.exist?(pretraining_file_name)
@@ -41,8 +45,7 @@ else
   end
 end
 
-test_data = []
-InputProcessor.new("#{__dir__}/spec/fixtures/mnist_10_items.csv").read_csv_data { |row| test_data << row}
+test_data = InputProcessor.new("#{__dir__}/spec/fixtures/mnist_10_items.csv").processed_data
 
 reports = []
 test_data.each do |image_data|
