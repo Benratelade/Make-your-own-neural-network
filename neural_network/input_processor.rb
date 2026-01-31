@@ -1,5 +1,5 @@
 require 'csv'
-require 'matrix'
+require 'numo/narray'
 
 class InputProcessor
   attr_reader :processed_data
@@ -7,19 +7,21 @@ class InputProcessor
   def initialize(input_file)
     @input_file = input_file
     @processed_data = []
-    read_csv_data
+    # read_csv_data
   end
 
   def read_csv_data
-    CSV.read(@input_file).each do |csv|
-      @processed_data << {
-        label: csv.first, data: convert_and_rescale_data(csv[1..])
-      }
+    CSV.foreach(@input_file).each do |row|
+      yield(
+        {
+          label: row.first, data: convert_and_rescale_data(row[1..])
+        }
+      )
     end
   end
 
   def convert_and_rescale_data(data)
-    matrix = Matrix[data.map(&:to_f)]
-    ((matrix / 255) * 0.99).map { |value| value + 0.01 }.transpose
+    matrix = Numo::DFloat[data.map(&:to_f)]
+    (((matrix / 255) * 0.99) + 0.01).transpose
   end
 end
