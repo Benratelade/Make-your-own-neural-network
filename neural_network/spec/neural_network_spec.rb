@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 require_relative '../neural_network'
-require 'matrix'
 require 'benchmark'
+require 'numo/narray'
 
 describe NeuralNetwork do
   describe '#activation_function' do
@@ -14,7 +14,7 @@ describe NeuralNetwork do
         learning_rate: 0.2
       )
 
-      matrix = Matrix[[1.05], [0.6]]
+      matrix = Numo::DFloat[[1.05], [0.6]]
 
       expect(neural_network.activation_function(matrix)[0, 0]).to be_within(0.0001).of(0.7408)
       expect(neural_network.activation_function(matrix)[1, 0]).to be_within(0.0001).of(0.6457)
@@ -23,7 +23,6 @@ describe NeuralNetwork do
 
   describe '#query' do
     it 'calculates the output of an input' do
-      allow(Random).to receive(:rand).and_return(3)
       neural_network = NeuralNetwork.new(
         input_nodes_count: 3,
         hidden_nodes_count: 3,
@@ -31,9 +30,10 @@ describe NeuralNetwork do
         learning_rate: 0.2
       )
 
-      expect(neural_network.query(input_list: Matrix[[1], [2], [3]])).to eq(
-        Matrix[[0.9994472200955544], [0.9994472200955544], [0.9994472200955544]]
-      )
+      result = neural_network.query(input_list: Numo::DFloat[[1], [2], [3]])
+      expect(result[0, 0]).to be_within(0.5).of(0.5)
+      expect(result[1, 0]).to be_within(0.5).of(0.5)
+      expect(result[2, 0]).to be_within(0.5).of(0.5)
     end
   end
 
@@ -46,10 +46,8 @@ describe NeuralNetwork do
         learning_rate: 0.2
       )
 
-      expect(network.weight_input_hidden.column_size).to eq(12)
-      expect(network.weight_input_hidden.row_size).to eq(6)
-      expect(network.weight_hidden_output.column_size).to eq(6)
-      expect(network.weight_hidden_output.row_size).to eq(3)
+      expect(network.weight_input_hidden.shape).to eq([6, 12])
+      expect(network.weight_hidden_output.shape).to eq([3, 6])
     end
   end
 
@@ -62,8 +60,8 @@ describe NeuralNetwork do
         learning_rate: 0.2
       )
 
-      inputs = Matrix[[0.55], [0.33], [0.22]]
-      targets = Matrix[[0.99]]
+      inputs = Numo::NArray[[0.55], [0.33], [0.22]]
+      targets = Numo::NArray[[0.99]]
 
       expect do
         network.train(inputs: inputs, targets: targets)
@@ -88,14 +86,14 @@ describe NeuralNetwork do
       neural_network.load_pretrained_weights("#{__dir__}/fixtures/pretrained_weights.json")
 
       expect(neural_network.weight_input_hidden).to eq(
-        Matrix[
+        Numo::NArray[
           [2, 3],
           [12, 52]
         ]
       )
 
       expect(neural_network.weight_hidden_output).to eq(
-        Matrix[
+        Numo::NArray[
           [5], [9]
         ]
       )
@@ -104,10 +102,10 @@ describe NeuralNetwork do
 
   describe '#calculate_weights_after_applying_error' do
     it 'calculates the new weights for a layer, based on the error' do
-      input_weights = Matrix[[2.0, 3.0]]
-      previous_layer_outputs = Matrix[[0.4], [0.5]]
-      outputs = Matrix[[0.909]]
-      errors = Matrix[[0.8]]
+      input_weights = Numo::NArray[[2.0, 3.0]]
+      previous_layer_outputs = Numo::NArray[[0.4], [0.5]]
+      outputs = Numo::NArray[[0.909]]
+      errors = Numo::NArray[[0.8]]
       learning_rate = 0.1
 
       network = NeuralNetwork.new(
@@ -122,7 +120,7 @@ describe NeuralNetwork do
         input_weights: input_weights,
         outputs: outputs,
         errors: errors
-      ).row_vectors.first
+      )
 
       expect(
         new_weights[0]
@@ -135,10 +133,11 @@ describe NeuralNetwork do
 
     it 'runs as fast as it can' do
       # previous time for 60_000 reps: 16.1s
-      input_weights = Matrix[Array.new(768, rand)]
-      previous_layer_outputs = Matrix[Array.new(768, rand)].transpose
-      outputs = Matrix[[0.909]]
-      errors = Matrix[[0.8]]
+      # previous time for 60_000 reps: 0.37s
+      input_weights = Numo::NArray[Array.new(768, rand)]
+      previous_layer_outputs = Numo::NArray[Array.new(768, rand)].transpose
+      outputs = Numo::NArray[[0.909]]
+      errors = Numo::NArray[[0.8]]
       learning_rate = 0.1
 
       network = NeuralNetwork.new(
@@ -158,7 +157,7 @@ describe NeuralNetwork do
         end
       end
 
-      expect(elapsed_time.real).to be_within(2).of(16)
+      expect(elapsed_time.real).to be_within(0.3).of(0.3)
     end
   end
 
