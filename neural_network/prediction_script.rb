@@ -16,13 +16,13 @@ puts 'END generating the neural network'
 pretraining_file_name = "#{__dir__}/trained_weights.json"
 network.load_pretrained_weights(pretraining_file_name) if File.exist?(pretraining_file_name)
 
-test_data = InputProcessor.new("#{__dir__}/../MNIST_CSV/mnist_test.csv").processed_data
+test_data_processor = InputProcessor.new("#{__dir__}/../MNIST_CSV/mnist_test.csv")
 
 reports = []
-test_data.each do |image_data|
+test_data_processor.read_csv_data do |image_data|
   report = { actual: image_data[:label] }
-  output = network.query(input_list: image_data[:data]).column_vectors.first.to_a
-  predicted = output.index(output.max).to_s
+  output = network.query(input_list: image_data[:data])
+  predicted = output[0.., 0].to_a.index(output.max).to_s
   report[:predicted] = predicted
   report[:prediction_was_correct] = predicted == image_data[:label]
   reports << report
