@@ -19,7 +19,7 @@ network.load_pretrained_weights(pretraining_file_name) if File.exist?(pretrainin
 test_data_processor = InputProcessor.new("#{__dir__}/../MNIST_CSV/mnist_test.csv")
 
 reports = []
-test_data_processor.read_csv_data do |image_data|
+test_data_processor.stream_csv_data do |image_data|
   report = { actual: image_data[:label] }
   output = network.query(input_list: image_data[:data])
   predicted = output[0.., 0].to_a.index(output.max).to_s

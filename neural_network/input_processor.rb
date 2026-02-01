@@ -7,10 +7,10 @@ class InputProcessor
   def initialize(input_file)
     @input_file = input_file
     @processed_data = []
-    # read_csv_data
+    # stream_csv_data
   end
 
-  def read_csv_data
+  def stream_csv_data
     CSV.foreach(@input_file).each do |row|
       yield(
         {

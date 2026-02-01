@@ -4,12 +4,12 @@ require_relative '../input_processor'
 require 'matrix'
 
 describe InputProcessor do
-  describe '#read_csv_data'
+  describe '#stream_csv_data'
   it 'reads and yields the CSV data in a format the neural network can use' do
     input_processor = InputProcessor.new("#{__dir__}/fixtures/mnist_10_items.csv")
 
     pre_processed_data = []
-    input_processor.read_csv_data do |data|
+    input_processor.stream_csv_data do |data|
       pre_processed_data << data
     end
 

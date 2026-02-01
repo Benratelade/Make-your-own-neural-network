@@ -23,7 +23,7 @@ puts 'END processing data'
   puts "Starting Epoch: #{count + 1}"
 
   record_index = 0
-  data_processor.read_csv_data do |row_data|
+  data_processor.stream_csv_data do |row_data|
     inputs = row_data[:data]
     targets = Numo::DFloat.new(network.output_nodes_count, 1).fill(0.01)
     targets[row_data[:label].to_i, 0] = 0.99
@@ -46,7 +46,7 @@ end
 test_data_processor = InputProcessor.new("#{__dir__}/spec/fixtures/mnist_10_items.csv")
 
 reports = []
-test_data_processor.read_csv_data do |image_data|
+test_data_processor.stream_csv_data do |image_data|
   report = { actual: image_data[:label] }
   output = network.query(input_list: image_data[:data])
   predicted = output[0.., 0].to_a.index(output.max).to_s
