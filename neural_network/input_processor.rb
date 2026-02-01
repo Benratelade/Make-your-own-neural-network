@@ -20,6 +20,17 @@ class InputProcessor
     end
   end
 
+  def preprocessed_csv_data
+    data = []
+    CSV.open(@input_file).each do |row|
+      data << {
+        label: row.first, data: convert_and_rescale_data(row[1..])
+      }
+    end
+
+    data
+  end
+
   def convert_and_rescale_data(data)
     matrix = Numo::DFloat[data.map(&:to_f)]
     (((matrix / 255) * 0.99) + 0.01).transpose

@@ -17,13 +17,14 @@ puts 'START processing data'
 training_file = "#{__dir__}/../MNIST_CSV/mnist_train.csv"
 # training_file = "#{__dir__}/spec/fixtures/mnist_100_items.csv"
 data_processor = InputProcessor.new(training_file)
+training_data = data_processor.preprocessed_csv_data
 puts 'END processing data'
 
 3.times do |count|
   puts "Starting Epoch: #{count + 1}"
 
   record_index = 0
-  data_processor.stream_csv_data do |row_data|
+  training_data.each do |row_data|
     inputs = row_data[:data]
     targets = Numo::DFloat.new(network.output_nodes_count, 1).fill(0.01)
     targets[row_data[:label].to_i, 0] = 0.99
